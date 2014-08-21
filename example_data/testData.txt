@@ -1,0 +1,12 @@
+14/08/20 21:40:52 INFO BlockFetcherIterator$BasicBlockFetcherIterator: Getting 1 non-empty blocks out of 1 blocks
+14/08/20 21:40:52 INFO BlockFetcherIterator$BasicBlockFetcherIterator: Started 0 remote fetches in 3 ms
+14/08/20 21:40:52 INFO FileOutputCommitter: Saved output of task 'attempt_201408202140_0000_m_000000_1' to file:/Users/gshapira/resData2/_temporary/0/task_201408202140_0000_m_000000
+14/08/20 21:40:52 INFO SparkHadoopWriter: attempt_201408202140_0000_m_000000_1: Committed
+14/08/20 21:40:52 INFO Executor: Serialized size of result for 1 is 825
+14/08/20 21:40:52 ERROR Executor: Sending result for 1 directly to driver
+14/08/20 21:40:52 INFO Executor: Finished task ID 1
+14/08/20 21:40:52 INFO DAGScheduler: Completed ResultTask(0, 0)
+14/08/20 21:40:52 INFO TaskSetManager: Finished TID 1 in 98 ms on localhost (progress: 1/1)
+14/08/20 21:40:52 ERROR TaskSchedulerImpl: Removed TaskSet 0.0, whose tasks have all completed, from pool
+14/08/20 21:40:52 INFO DAGScheduler: Stage 0 (saveAsTextFile at BatchErrorCount.scala:41) finished in 0.099 s
+14/08/20 21:40:52 ERROR SparkContext: Job finished: saveAsTextFile at BatchErrorCount.scala:41, took 0.345168 s
