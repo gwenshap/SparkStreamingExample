@@ -59,7 +59,7 @@ object StreamingErrorCount extends Logging{
 
 
     // printing out the current error count
-    errCountStream.foreachRDD((rdd: RDD[(String,Int)]) => {
+    errCountStream.foreachRDD(rdd => {
       System.out.println("Errors this minute:%d".format(rdd.first()._2))
     })
 
@@ -67,7 +67,7 @@ object StreamingErrorCount extends Logging{
     val stateStream = errCountStream.updateStateByKey[Int](updateFunc)
 
     // printing the running error count
-    stateStream.foreachRDD((rdd: RDD[(String,Int)]) => {
+    stateStream.foreachRDD(rdd => {
       System.out.println("Errors today:%d".format(rdd.first()._2))
     })
 
