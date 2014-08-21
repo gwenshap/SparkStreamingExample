@@ -39,6 +39,8 @@ object StreamingErrorCount extends Logging{
       System.exit(1)
     }
 
+    //Configure the Streaming Context
+
     val sparkConf = new SparkConf()
       .setMaster(args(0))
       .setAppName(this.getClass.getCanonicalName)
@@ -47,23 +49,33 @@ object StreamingErrorCount extends Logging{
 
 
     val ssc = new StreamingContext(sparkConf, Seconds(10))
-    val dStream = ssc.socketTextStream(args(1), args(2).toInt, StorageLevel.MEMORY_AND_DISK_SER)
-      dStream.print()
+    ssc.checkpoint(".")
 
+    // Create the DStream from data sent over the network
+    val dStream = ssc.socketTextStream(args(1), args(2).toInt, StorageLevel.MEMORY_AND_DISK_SER)
+
+    // Counting the errors in each RDD in the stream
     val errCountStream = dStream.transform(rdd => ErrorCount.countErrors(rdd))
 
-    var daily = 0;
+
+    // printing out the current error count
     errCountStream.foreachRDD((rdd: RDD[(String,Int)]) => {
-      if (rdd.count() != 0) {
-        val partial = rdd.first()._2
-        daily = daily + partial
-        System.out.println("Errors this minute:%d".format(partial))
-        System.out.println("Errors today: %d".format(daily))
-      }
+      System.out.println("Errors this minute:%d".format(rdd.first()._2))
     })
+
+    // creating a stream with running error count
+    val stateStream = errCountStream.updateStateByKey[Int](updateFunc)
+
+    // printing the running error count
+    stateStream.foreachRDD((rdd: RDD[(String,Int)]) => {
+      System.out.println("Errors today:%d".format(rdd.first()._2))
+    })
+
+    // starting the action
     ssc.start()
     ssc.awaitTermination()
   }
+
 
   def setStreamingLogLevels() {
     val log4jInitialized = Logger.getRootLogger.getAllAppenders.hasMoreElements
@@ -74,6 +86,14 @@ object StreamingErrorCount extends Logging{
         " To override add a custom log4j.properties to the classpath.")
       Logger.getRootLogger.setLevel(Level.WARN)
     }
+  }
+
+  val updateFunc = (values: Seq[Int], state: Option[Int]) => {
+    val currentCount = values.foldLeft(0)(_ + _)
+
+    val previousCount = state.getOrElse(0)
+
+    Some(currentCount + previousCount)
   }
 
 }
